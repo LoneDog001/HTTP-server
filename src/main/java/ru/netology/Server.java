@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -34,7 +35,7 @@ public class Server {
              BufferedOutputStream output = new BufferedOutputStream(clientSocket.getOutputStream())
         ) {
             final String requestLine = input.readLine();
-            final String [] parts = requestLine.split(" ");
+            final String[] parts = requestLine.split(" ");
 
             if (parts.length != 3) {
                 badRequest(output);
@@ -60,8 +61,21 @@ public class Server {
                 return;
             }
             handlers.handle(request, output);
+
+            if (!request.getQueryParams().isEmpty())
+                System.out.println("Вывод query: \n" + request.getQueryParams());
+            if (!request.getQueryParams("test").isEmpty())
+                System.out.println("Вывод query по слову 'test' :" + request.getQueryParams("test"));
+
+            if (!request.getPostParams().isEmpty())
+                System.out.println("Обработка тела запроса : \n" + request.getPostParams());
+            if (!request.getPostParams("test2").isEmpty())
+                System.out.println("Обработка тела запроса по слову  'test2' :" + request.getPostParams("test"));
+
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
